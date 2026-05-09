@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TGFPAR — Parceiros</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/theme/mermaid.min.css" integrity="sha384-jZvDSsmGB9oGGT/4l9bHXGoAv1OxvG/cFmSo0dZaSqmBgvQTKDBFAMftlXTmMbNW" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/gridjs.umd.js" integrity="sha384-/XXDzxe4FsGiAe50i/u9pY/Vy/uX654MHB1xoc1BJNnH1WXHhqHga9g3q5tF4gj7" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg:       #f4f6fb;
+      --surface:  #ffffff;
+      --border:   #e2e8f0;
+      --primary:  #2563eb;
+      --text:     #1e293b;
+      --muted:    #64748b;
+      --green:    #16a34a;
+      --red:      #dc2626;
+      --amber:    #d97706;
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(37,99,235,.25);
+    }
+    .topbar h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; }
+    .topbar span { font-size: 0.8rem; opacity: .75; }
+    .topbar .spacer { flex: 1; }
+    #btn-reload {
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.35);
+      color: #fff;
+      border-radius: 7px;
+      padding: 6px 14px;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    #btn-reload:hover { background: rgba(255,255,255,.3); }
+    #btn-reload:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Stats row ── */
+    .stats {
+      display: flex;
+      gap: 14px;
+      padding: 20px 24px 0;
+      flex-wrap: wrap;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      min-width: 120px;
+      flex: 1;
+      max-width: 180px;
+    }
+    .stat .num { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .stat .lbl { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+    .stat.blue  .num { color: var(--primary); }
+    .stat.green .num { color: var(--green); }
+    .stat.red   .num { color: var(--red); }
+    .stat.amber .num { color: var(--amber); }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 16px 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .toolbar input[type="text"] {
+      flex: 1;
+      min-width: 240px;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: .88rem;
+      background: var(--surface);
+      outline: none;
+      color: var(--text);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .toolbar input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+    .toolbar select {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: .88rem;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+    }
+    .count-badge {
+      font-size: .8rem;
+      color: var(--muted);
+      white-space: nowrap;
+      padding: 0 4px;
+    }
+
+    /* ── Table card ── */
+    .card {
+      margin: 0 24px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    /* Grid.js overrides */
+    .gridjs-wrapper  { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+    .gridjs-thead th {
+      background: #f8fafc !important;
+      color: var(--muted) !important;
+      font-size: .73rem !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: .05em !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .gridjs-tbody td  { font-size: .84rem !important; color: var(--text) !important; border-bottom: 1px solid #f1f5f9 !important; }
+    .gridjs-tr:hover td { background: #f0f6ff !important; }
+    .gridjs-pagination { border-top: 1px solid var(--border) !important; padding: 10px 16px !important; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: .73rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .b-green  { background: #dcfce7; color: #15803d; }
+    .b-red    { background: #fee2e2; color: #b91c1c; }
+    .b-blue   { background: #dbeafe; color: #1d4ed8; }
+    .b-gray   { background: #f1f5f9; color: #64748b; }
+    .b-amber  { background: #fef3c7; color: #92400e; }
+
+    /* ── Loading / Error ── */
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 220px;
+      gap: 14px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-card {
+      margin: 0 24px 24px;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: var(--red);
+      font-size: .88rem;
+      display: none;
+    }
+
+    #last-updated { font-size: .75rem; color: rgba(255,255,255,.65); }
+  </style>
+</head>
+<body>
+
+<!-- ── Top bar ──────────────────────────────────────────────── -->
+<div class="topbar">
+  <div>
+    <h1>📋 TGFPAR — Parceiros</h1>
+    <div id="last-updated">Carregando...</div>
+  </div>
+  <div class="spacer"></div>
+  <button id="btn-reload" onclick="reload()">↺ Atualizar</button>
+</div>
+
+<!-- ── Stats ────────────────────────────────────────────────── -->
+<div class="stats">
+  <div class="stat blue">  <div class="num" id="s-total">—</div><div class="lbl">Total</div></div>
+  <div class="stat green"> <div class="num" id="s-ativos">—</div><div class="lbl">Ativos</div></div>
+  <div class="stat red">   <div class="num" id="s-inativos">—</div><div class="lbl">Inativos</div></div>
+  <div class="stat blue">  <div class="num" id="s-integrados">—</div><div class="lbl">Integrados</div></div>
+  <div class="stat amber"> <div class="num" id="s-erros">—</div><div class="lbl">Com Erro</div></div>
+</div>
+
+<!-- ── Toolbar ──────────────────────────────────────────────── -->
+<div class="toolbar">
+  <input type="text" id="q" placeholder="🔍 Buscar por nome, CNPJ, e-mail, código..." oninput="applyFilters()" />
+  <select id="f-ativo" onchange="applyFilters()">
+    <option value="">Todos os status</option>
+    <option value="true">Ativos</option>
+    <option value="false">Inativos</option>
+  </select>
+  <select id="f-int" onchange="applyFilters()">
+    <option value="">Todas integrações</option>
+    <option value="true">Integrados</option>
+    <option value="false">Não integrados</option>
+  </select>
+  <span class="count-badge" id="count-badge"></span>
+</div>
+
+<!-- ── Error ─────────────────────────────────────────────────── -->
+<div class="error-card" id="err-box"></div>
+
+<!-- ── Table ─────────────────────────────────────────────────── -->
+<div class="card">
+  <div id="loading"><div class="spinner"></div><span>Buscando parceiros no Bubble…</span></div>
+  <div id="grid-target"></div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────
+const API   = 'https://teste-n8n-50169.bubbleapps.io/api/1.1/obj/tgfpar';
+const TOKEN = '88e812fcb2a50c1c8aefee575acf2966';
+const LIMIT = 100;
+
+// ── State ─────────────────────────────────────────────────────
+let allData      = [];
+let filteredData = [];
+let gridInstance = null;
+
+// ── Fetch ─────────────────────────────────────────────────────
+async function fetchAll() {
+  let cursor  = 0;
+  let results = [];
+  let remaining = 1;
+
+  while (remaining > 0) {
+    const res = await fetch(`${API}?limit=${LIMIT}&cursor=${cursor}`, {
+      headers: { 'Authorization': `Bearer ${TOKEN}` }
+    });
+    if (!res.ok) throw new Error(`Erro HTTP ${res.status} — verifique a API do Bubble.`);
+    const json = await res.json();
+    if (!json.response?.results) throw new Error('Resposta inesperada da API.');
+    results   = results.concat(json.response.results);
+    remaining = json.response.remaining ?? 0;
+    cursor   += LIMIT;
+  }
+  return results;
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+const safe = v => (v == null ? '—' : String(v).replace(/\n/g, '').trim() || '—');
+
+const fmtDate = s => {
+  if (!s) return '—';
+  try { return new Date(s).toLocaleDateString('pt-BR'); } catch { return s; }
+};
+
+const badge = (val, labelT, labelF) => {
+  if (val === true)  return `<span class="badge b-green">${labelT}</span>`;
+  if (val === false) return `<span class="badge b-red">${labelF}</span>`;
+  return '<span class="badge b-gray">—</span>';
+};
+
+const statusBadge = s => {
+  if (!s) return '—';
+  const ok = s.toLowerCase().includes('sucesso');
+  return `<span class="badge ${ok ? 'b-blue' : 'b-amber'}">${s}</span>`;
+};
+
+// ── Stats ─────────────────────────────────────────────────────
+function updateStats(data) {
+  const total = data.length;
+  const ativos     = data.filter(r => r.ATIVO === true).length;
+  const integrados = data.filter(r => r.INTEGRADO === true).length;
+  const erros      = data.filter(r => r.ERRO_INTEGRACAO && !r.ERRO_INTEGRACAO.toLowerCase().includes('sucesso')).length;
+
+  document.getElementById('s-total').textContent      = total.toLocaleString('pt-BR');
+  document.getElementById('s-ativos').textContent     = ativos.toLocaleString('pt-BR');
+  document.getElementById('s-inativos').textContent   = (total - ativos).toLocaleString('pt-BR');
+  document.getElementById('s-integrados').textContent = integrados.toLocaleString('pt-BR');
+  document.getElementById('s-erros').textContent      = erros.toLocaleString('pt-BR');
+}
+
+// ── Table ─────────────────────────────────────────────────────
+const COLS = [
+  { label: 'Cód.',        key: 'CODPARC',         w: '60px'  },
+  { label: 'Nome',        key: 'NOMEPARC',         w: '220px' },
+  { label: 'CNPJ',        key: 'CNPJ',             w: '140px' },
+  { label: 'E-mail',      key: 'EMAIL',            w: '190px' },
+  { label: 'CEP',         key: 'CEP',              w: '90px'  },
+  { label: 'Tipo',        key: 'TIPPESSOA',        w: '55px'  },
+  { label: 'Ativo',       key: '_ATIVO',           w: '75px'  },
+  { label: 'Integrado',   key: '_INTEGRADO',       w: '90px'  },
+  { label: 'Integração',  key: '_ERRO_INTEGRACAO', w: '170px' },
+  { label: 'Data',        key: '_DATA',            w: '90px'  },
+];
+
+function toRow(r) {
+  return [
+    safe(r.CODPARC),
+    safe(r.NOMEPARC),
+    safe(r.CNPJ),
+    safe(r.EMAIL),
+    safe(r.CEP),
+    safe(r.TIPPESSOA),
+    badge(r.ATIVO, 'Ativo', 'Inativo'),
+    badge(r.INTEGRADO, 'Sim', 'Não'),
+    statusBadge(r.ERRO_INTEGRACAO),
+    fmtDate(r.DATA),
+  ];
+}
+
+function renderTable(data) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('grid-target').innerHTML = '';
+  document.getElementById('count-badge').textContent =
+    `${data.length.toLocaleString('pt-BR')} registro${data.length !== 1 ? 's' : ''}`;
+
+  if (gridInstance) { try { gridInstance.destroy(); } catch (_) {} }
+
+  gridInstance = new gridjs.Grid({
+    columns: COLS.map(c => ({
+      name: c.label,
+      width: c.w,
+      formatter: cell => gridjs.html(String(cell)),
+    })),
+    data: data.map(toRow),
+    sort: true,
+    pagination: { limit: 25 },
+    style: { table: { 'white-space': 'nowrap' } },
+    language: {
+      pagination: {
+        previous: '← Anterior', next: 'Próxima →',
+        navigate: (p, pages) => `Página ${p} de ${pages}`,
+        page: p => `Página ${p}`,
+        showing: 'Mostrando', of: 'de', to: 'até', results: 'registros',
+      },
+      noRecordsFound: 'Nenhum registro encontrado',
+      error: 'Erro ao carregar dados',
+    },
+  }).render(document.getElementById('grid-target'));
+}
+
+// ── Filters ───────────────────────────────────────────────────
+function applyFilters() {
+  const q    = document.getElementById('q').value.toLowerCase().trim();
+  const fAtv = document.getElementById('f-ativo').value;
+  const fInt = document.getElementById('f-int').value;
+
+  filteredData = allData.filter(r => {
+    if (q) {
+      const hay = [r.NOMEPARC, r.CNPJ, r.EMAIL, r.CODPARC].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (fAtv !== '' && String(r.ATIVO) !== fAtv) return false;
+    if (fInt !== '' && String(r.INTEGRADO) !== fInt) return false;
+    return true;
+  });
+
+  renderTable(filteredData);
+}
+
+// ── Init / Reload ─────────────────────────────────────────────
+async function reload() {
+  const btn = document.getElementById('btn-reload');
+  btn.disabled = true;
+  btn.textContent = '↺ Atualizando…';
+  document.getElementById('err-box').style.display = 'none';
+  document.getElementById('grid-target').innerHTML = '';
+  document.getElementById('loading').style.display = 'flex';
+
+  try {
+    allData = await fetchAll();
+    updateStats(allData);
+    filteredData = [...allData];
+    applyFilters();
+    document.getElementById('last-updated').textContent =
+      'Atualizado em ' + new Date().toLocaleString('pt-BR');
+  } catch (e) {
+    document.getElementById('loading').style.display = 'none';
+    const eb = document.getElementById('err-box');
+    eb.style.display = 'block';
+    eb.textContent = '⚠️ ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↺ Atualizar';
+  }
+}
+
+reload();
+</script>
+</body>
+</html>
